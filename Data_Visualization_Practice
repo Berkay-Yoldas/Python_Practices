@@ -1,0 +1,410 @@
+import seaborn as sns
+
+planets = sns.load_dataset("planets")
+planets.head()
+
+#veri setinin hikayesi nedir?
+
+df = planets.copy()
+
+df.head()
+
+df.tail()
+
+df.info()
+
+#object bir kategorik değişkendir(genelde)
+
+df.dtypes
+
+#object tipi kategorik değişkene dönüştürmek
+
+import pandas as pd
+
+df.method = pd.Categorical(df.method)
+
+df.head()
+
+df.dtypes
+
+#veri setinin betimlenmesi
+
+df.shape
+
+df.columns
+
+df.describe().T   #kategorik değişkenleri göstermez sayısal değişkenleri gösterir
+#zaman serisi grafiği yapmak isteseydik yıl'ı number yerine yıl olarak değiştirmek daha makul olurdu
+
+df.describe(include = "all").T
+
+#veri setinde hiç eksik gözlem(değer) var mı?
+df.isnull().values.any()
+
+#hangi değişkende kaçar tane null var?
+df.isnull().sum()
+
+#df["degisken_ismi].fillna(0, inplace = TRUE) eksik değerlere 0 bastık
+
+#ortalamayla doldurduk df["orbital_period"].fillna(df.orbital_period.mean(), inplace = True)
+
+#tüm eksik değerler yerine ortalama değerleri doldurduk 
+
+#df.fillna(df.mean(), inplace = TRUE)
+
+df = planets.copy()
+df.head()
+df.isnull().sum()
+
+#sadece kategorik değişkenler ve özetleri
+kat_df = df.select_dtypes(include = ["object"])
+kat_df.head()
+
+#kategorik değişkenin sınıflarına ve sınıf sayısına erişmek
+kat_df.method.unique()
+kat_df["method"].value_counts().count()
+
+#kategorik değişkenin sınıflarının frekansına erişmek
+kat_df["method"].value_counts()
+
+df["method"].value_counts().plot.barh();   #; koymayınca da isim gösteriyor yukarıda fonksiyonun
+
+#sürekli değişken özetleri
+df_num = df.select_dtypes(include = ["float64", "int64"])
+
+df_num.head()
+
+df_num.describe().T
+
+df_num["distance"].describe()
+
+print("Ortalama: " + str(df_num["distance"].mean()))
+print("Dolu Gözlem Sayısı: " + str(df_num["distance"].count()))
+print("Maksimum Değer: " + str(df_num["distance"].max()))
+print("Minumum Değer: " + str(df_num["distance"].min()))
+print("Medyan: " + str(df_num["distance"].median()))
+print("Standart Sapma: " + str(df_num["distance"].std()))
+
+#Dağılım Grafikler
+#Barplot - Sütun Grafik - Kategorik Değişkenleri Görselleştirmek için Kullanılır
+diamonds = sns.load_dataset('diamonds')
+df2 = diamonds.copy()
+df2.head()
+
+#veri setine hızlı bakış
+df2.info()
+
+df2.describe().T
+
+df2["cut"].value_counts()
+
+df2["color"].value_counts()
+
+df2["clarity"].value_counts()
+
+#kategorik değişkenler nominal değil de ordinal burda-yani bir sıralama var - ordinal tanımlama yapıcaz
+from pandas.api.types import CategoricalDtype
+df2.cut.head()
+df2.cut = df2.cut.astype(CategoricalDtype(ordered = True))
+df2.cut.head()
+
+#sırası doğru mu bu da önemli
+cut_kategoriler = ["Fair", "Good", "Very Good", "Premium", "Ideal"]
+df2.cut = df2.cut.astype(CategoricalDtype(categories = cut_kategoriler, ordered = True))
+df2.cut.head()
+
+#barplot
+df2["cut"].value_counts().plot.barh().set_title("Cut Değişkeninin Sınıf Freknasları")
+(df2["cut"]
+ .value_counts()
+ .plot.barh()
+ .set_title("Cut Değişkeninin Sınıf Freknasları"))
+#dış parantez sayesinde noktalardan böldük
+
+sns.barplot(x = "cut", y = df2.cut.index, data = df2);
+
+#Çaprazlamalar
+df2.head()
+
+sns.catplot(x = "cut", y = "price", data = df2);
+
+sns.barplot(x = "cut", y = "price", hue = "color", data = df2);
+
+color_kategoriler = ["E", "I", "J", "H", "F", "G", "D"]
+
+df2.color = df2.color.astype(CategoricalDtype(categories = color_kategoriler, ordered = True))
+
+df2.color.head()
+
+sns.barplot(x = "cut", y = "price", hue = "color", data = df2);
+#şimdi bu, veriyi temsil eden grafikteki, bilgiyi doğrulamak için bir kaç şey daha yapalım
+
+df2.groupby(["cut", "color"])["price"].mean() 
+#yukarıdaki grafik aslında bu gruplamayı arkada yapıp gösteriyor, eksenler 2 boyutlu grafikten farklı price'ta
+
+#Histogram ve Yoğunluk Grafikleri
+#Sayısal değişkenlerin bağımlılığını görselleştirmek için kullanılan veri görselleştirme tekniğidir
+df2.head()
+
+sns.distplot(df2.price, kde = False);
+
+sns.histplot(df2.price, kde = False);
+
+?sns.histplot
+
+sns.histplot(df2.price, bins = 1000, kde = False);
+
+sns.histplot(df2.price, bins = 10, kde = False);
+
+sns.histplot(df2.price, bins = 1, kde = False);
+
+sns.histplot(df2.price);
+
+sns.histplot(df2.price, kde = True);
+
+sns.distplot(df2.price);
+
+sns.distplot(df2.price, hist = False);
+
+sns.kdeplot(df2.price);
+
+sns.histplot(df2.price);
+
+df2["price"].describe()
+
+sns.kdeplot(df2.price, shade = True);
+
+
+#ekstra bir soru linkedinden
+lst = []
+for i in range(2, -1, -1):
+    for j in range(6, 9, 2):
+        lst.append(i+j)
+print(lst)
+
+
+#Histogram ve Yoğunluk Çaprazlamalar
+(sns
+ .FacetGrid(df2,
+              hue = "cut",
+              height = 5,
+              xlim = (0, 10000))
+ .map(sns.kdeplot, "price", shade = True)
+ .add_legend()
+);
+sns.catplot(x = "cut", y = "price", hue = "color", kind = "point", data = df2);
+
+#Boxplot
+
+import seaborn as sns
+
+tips = sns.load_dataset("tips")
+df3 = tips.copy()
+df3.head()
+
+df3.describe().T
+
+df3["sex"].value_counts()
+
+df3["smoker"].value_counts()
+
+df3["day"].value_counts()
+
+df3["time"].value_counts()
+
+#boxplot oluşturma
+sns.boxplot(x = df3["total_bill"]);
+
+#nokta olanlar aykırı değerler
+sns.boxplot(x = df3["total_bill"], orient = "v");
+
+#Çaprazlamalar
+#hangi günler daha fazla kaanıyoruz?
+df.describe().T
+sns.boxplot(x = "day", y = "total_bill", data = df3);
+
+#sabah mı akşam mı daha çok kazanıyoruz?
+sns.boxplot(x = "time", y = "total_bill", data = df3);
+
+#kişi sayısı kazancı etkiliyor mu?
+sns.boxplot(x = "size", y = "total_bill", data = df3);
+sns.boxplot(x = "day", y = "total_bill", hue = "sex", data = df3);
+
+#Violin Grafiği oluşturulması
+#yoğunluk grafiğiyle kutu grafiğinin birlikte bir versiyonu gibi düşünülebilir
+sns.catplot(y = "total_bill", kind = "violin", data = df3);
+
+#violin grafik çaprazlamalar
+sns.catplot(x = "day", y = "total_bill", kind = "violin", data = df3);
+sns.catplot(x = "day", y = "total_bill", hue = "sex", kind = "violin", data = df3);
+
+#Korelasyon Grafikleri
+#buraya akdar değişken kategorikse barplot kullandık, değişken sayısal, yani sürekli ise
+#histogram, yoğunluk, barplot ve violin kullandık ve sadece çaprazlama yaptık
+#şimdi iki değişkenli grafiklere geçiyoruz ve bunlara da boyut ekleyeceğiz
+sns.scatterplot(x = "total_bill", y = "tip", data = df3);
+
+#çaprazlamalar - bouyt/kırılım ekleme
+sns.scatterplot(x = "total_bill", y = "tip", hue= "time", data = df3);
+
+#scatterplot korelasyonun görselleştirmesidir, istatiksel temeli vardır
+sns.scatterplot(x = "total_bill", y = "tip", hue= "time", style = "time", data = df3);
+sns.scatterplot(x = "total_bill", y = "tip", hue= "day", style = "time", data = df3);
+sns.scatterplot(x = "total_bill", y = "tip", hue= "day", style = "day", data = df3);
+sns.scatterplot(x = "total_bill", y = "tip", size = "size", data = df3);
+sns.scatterplot(x = "total_bill", y = "tip", hue = "size", size = "size", data = df3);
+
+#doğrusal ilişkinin gösterilmesi
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.lmplot(x = "total_bill", y = "tip", data = df3);
+
+#açık renkli olanlar sapmaları ifade ediyor (yukardaki grafikte)
+sns.lmplot(x = "total_bill", y = "tip", hue = "smoker", data = df3);
+
+#yukarıdaki grafikte doğruların eğimi değişti, başka bir kategorik değişken eklediğimizde.
+#doğrunnun eğimi sigara içmeyenlerde daha dik olduğundan sigara içenlerde 
+#bill arttıkça tip de artmış ama daha şiddetli artmış sigara içenlere göre, eğimden dolayı
+
+sns.lmplot(x = "total_bill", y = "tip", hue = "smoker", col = "time", data = df3);
+#bu üstteki grafikte de time'a göre eğimler yine değişmiş ama dikkate alınacak kadar değişmiş mi mesela
+#bu kararı vermek için bu grafik faydalı
+
+sns.lmplot(x = "total_bill", y = "tip", hue = "smoker", col = "time", row = "sex", data = df3);
+
+#scatter plot matrisi
+
+iris = sns.load_dataset("iris")
+df4 = iris.copy()
+df4.head()
+
+df4.dtypes
+
+df4.shape
+
+sns.pairplot(df4)
+
+sns.pairplot(df4, hue = "species");
+#çeşitli noktalarda kümelenmeler varsa bu bazı farklı yapılanmaları ifade eder
+#mesela burda çiçek türlerinden kaynaklı kümelenmeler var
+
+sns.pairplot(df4, hue = "species", markers = ["o", "s", "d"]);
+#markers ile renklerin şekilleri değişti
+
+sns.pairplot(df4, kind = "reg");
+sns.pairplot(df4, kind = "reg", hue = "species");
+#doğru ekledik yukarda
+
+#Isı Haritası - Heatmap
+#uzun vadeli(zaman serisi-yıl-ay vs) belirli periyotlarla tekrar eden olayları görmek vs.
+flights = sns.load_dataset('flights')
+df5 = flights.copy()
+df5.head()
+
+df5.describe().T
+
+df5.shape
+
+
+df5["passengers"].describe()
+df5 = df5.pivot("month", "year", "passengers");
+df5
+
+sns.heatmap(df5);
+#elimizde pattern detection problemi olduğunda güzel işlev görebilen bir grafik
+
+sns.heatmap(df5, annot = True, fmt = "d");
+sns.heatmap(df5, annot = True, fmt = "d", linewidths = .5);
+sns.heatmap(df5, annot = True, fmt = "d", linewidths = .5, cbar = False);
+
+#çizgi grafik
+#zamana bağlı değişkenlerin olduğu veri setlerinde ve nesnelerin interneti gibi senaryolarda
+#makinelerin ürettiği verileri görselleştirmek için daha çok kullanılır
+
+fmri = sns.load_dataset("fmri")
+df6 = fmri.copy()
+df6.head()
+df6.describe().T
+
+df6.dtypes
+
+df6.shape
+
+#timepoint kesikli bir değişken ve kategorik değişken olarak da işlev görebilir
+#zaman noktalarını kesikli olarak ifade ediyor
+#signal değişkeni üzerinden anomali detection yapılabilir
+#amacımız her bir timepointe göre signal'in durumunu gözlemlemek ve diğer değişkenleri de eklemek
+
+df6["timepoint"].describe()
+#std dışında bir ondalıklı değer olmadığından bu değişkenin aslında kesikli olduğunu ifade eder
+#kategorik bir değişkenmişçesine davranabilmek mantıksız değil yani bu noktada
+
+df6["signal"].describe()
+#subjectler unique mi çoklamış mı ona bakalım
+#her bir zaman noktasında acaba eşit sinyal mi var
+
+df6.groupby("timepoint")["signal"].count()
+#sorumuzun cevaabı evet, yani mekanik bir değişken
+#unique mi?
+
+df6.groupby("signal")["timepoint"].count()
+df6.groupby("signal").count()
+#grup sayısı 1064 ve genel verideki row sayısına eşit yani unique
+
+df6.groupby("timepoint")["signal"].describe()
+#burda std değerini farklılaştıran bazı yapılar var demektir, biz bu yapıları anlamaya çalışalım
+#çizgi grafiği(lineplot) oluşturulması
+
+sns.lineplot(x = "timepoint", y = "signal", data = df6);
+#seaborn kütüphanesi, aggregated, yani toplulaştırılmış işlemler yapar. Açık mavi kısım oradan geliyor
+#koyu mavi çizgi ortalamalar, açık mavi kısım std ile oluşturulmuş güven aralıklarıdır
+#grafiği çaprazlayarak derinleştirelim
+
+sns.lineplot(x = "timepoint", y = "signal", hue = "event", data = df6);
+#stim bu ortalama sapmasında daha etken görünüyor
+#aslında yapısal bir veri seti ve nedensellik yok ama yine de bir bilgi veriyor neden olduguyla ilgili
+
+sns.lineplot(x = "timepoint", y = "signal", hue = "event", style = "event", data = df6);
+sns.lineplot(x = "timepoint",
+             y = "signal", 
+             hue = "event", 
+             style = "event",
+             markers = True,
+             dashes = False,
+             data = df6);
+#event noktalarını işaretledik
+
+sns.lineplot(x = "timepoint",
+             y = "signal", 
+             hue = "region", 
+             style = "event",
+             markers = True,
+             dashes = False,
+             data = df6);
+#basit zaman serisi grafiği
+
+!pip install pandas_datareader
+import pandas_datareader as pr
+#apple'ın borsadaki hisse senedi değerleri verisi indirelim - bir zaman serisi verisi
+df7 = pr.get_data_yahoo("AAPL", start = "2016-01-01", end = "2019-08-25")
+df7.head()
+
+df7.shape
+
+kapanis = df7["Close"]
+
+kapanis.head()
+
+kapanis.plot();
+
+#kategorik değişkenlerde nominal ve ordinal değişkenlerin tanımlanması gerektiği gibi
+#zaman değişkenleriyle çalışırken de elimizdeki zaman değişkeninin bir zaman değişkeni olduğu bilgisi verilmeli
+
+kapanis.index
+#sıkıntı yok ama yine de deneyelim
+kapanis.index = pd.DatetimeIndex(kapanis.index)
+kapanis.head()
+kapanis.plot()
+df7.describe()
+df7.describe().T
